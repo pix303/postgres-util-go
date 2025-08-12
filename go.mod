@@ -1,4 +1,4 @@
-module github.com/pix303/postgres-utils-go
+module github.com/pix303/postgres-util-go
 
 go 1.24.5
 
