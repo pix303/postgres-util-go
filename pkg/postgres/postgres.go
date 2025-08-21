@@ -12,13 +12,13 @@ import (
 )
 
 var (
-	NotFoundAggregateID             = errors.New("not found")
-	PostgresqlConfigNoHostError     = errors.New("no postgres host config")
-	PostgresqlConfigNoPortError     = errors.New("no postgres host port config")
-	PostgresqlConfigNoUserError     = errors.New("no postgres username")
-	PostgresqlConfigNoPasswordError = errors.New("no postgres password")
-	PostgresqlConfigNoDBNameError   = errors.New("no postgres db name config")
-	PostgresqlNoEventAppendedError  = errors.New("no event was appended")
+	ErrNotFoundAggregateID        = errors.New("not found")
+	ErrPostgresqlConfigNoHost     = errors.New("no postgres host config")
+	ErrPostgresqlConfigNoPort     = errors.New("no postgres host port config")
+	ErrPostgresqlConfigNoUser     = errors.New("no postgres username")
+	ErrPostgresqlConfigNoPassword = errors.New("no postgres password")
+	ErrPostgresqlConfigNoDBName   = errors.New("no postgres db name config")
+	ErrPostgresqlNoEventAppended  = errors.New("no event was appended")
 )
 
 type PostgresConnctionInfo struct {
@@ -39,7 +39,7 @@ func (this *PostgresConnctionInfoBuilder) WithHost() *PostgresConnctionInfoBuild
 	if pgHost != "" {
 		this.info.Host = pgHost
 	} else {
-		this.errs = append(this.errs, PostgresqlConfigNoHostError)
+		this.errs = append(this.errs, ErrPostgresqlConfigNoHost)
 	}
 	pgPort := os.Getenv("PG_PORT")
 	if pgPort != "" {
@@ -49,7 +49,7 @@ func (this *PostgresConnctionInfoBuilder) WithHost() *PostgresConnctionInfoBuild
 		}
 		this.info.Port = pgPortInt
 	} else {
-		this.errs = append(this.errs, PostgresqlConfigNoPortError)
+		this.errs = append(this.errs, ErrPostgresqlConfigNoPort)
 	}
 	return this
 }
@@ -59,13 +59,13 @@ func (this *PostgresConnctionInfoBuilder) WithUserAndPass() *PostgresConnctionIn
 	if pgUser != "" {
 		this.info.User = pgUser
 	} else {
-		this.errs = append(this.errs, PostgresqlConfigNoUserError)
+		this.errs = append(this.errs, ErrPostgresqlConfigNoUser)
 	}
 	pgPass := os.Getenv("PG_PASS")
 	if pgPass != "" {
 		this.info.Pass = pgPass
 	} else {
-		this.errs = append(this.errs, PostgresqlConfigNoPasswordError)
+		this.errs = append(this.errs, ErrPostgresqlConfigNoPassword)
 	}
 	return this
 }
@@ -75,7 +75,7 @@ func (this *PostgresConnctionInfoBuilder) WithDBName() *PostgresConnctionInfoBui
 	if pgDBName != "" {
 		this.info.DBname = pgDBName
 	} else {
-		this.errs = append(this.errs, PostgresqlConfigNoDBNameError)
+		this.errs = append(this.errs, ErrPostgresqlConfigNoDBName)
 	}
 	return this
 }
@@ -87,7 +87,7 @@ func (this *PostgresConnctionInfoBuilder) Build() (PostgresConnctionInfo, error)
 	return this.info, nil
 }
 
-func NewPostgresqlRepository() (*PostgresRepository, error) {
+func NewPostgresqlRepository() (*sqlx.DB, error) {
 	pcib := PostgresConnctionInfoBuilder{}
 
 	connectionInfo, err := pcib.WithHost().WithUserAndPass().WithDBName().Build()
@@ -112,13 +112,5 @@ func NewPostgresqlRepository() (*PostgresRepository, error) {
 		return nil, err
 	}
 
-	pr := PostgresRepository{
-		DB: db,
-	}
-
-	return &pr, nil
-}
-
-type PostgresRepository struct {
-	DB *sqlx.DB
+	return db, nil
 }
