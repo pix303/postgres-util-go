@@ -34,57 +34,57 @@ type PostgresConnctionInfoBuilder struct {
 	errs []error
 }
 
-func (this *PostgresConnctionInfoBuilder) WithHost() *PostgresConnctionInfoBuilder {
+func (builder *PostgresConnctionInfoBuilder) WithHost() *PostgresConnctionInfoBuilder {
 	pgHost := os.Getenv("PG_HOST")
 	if pgHost != "" {
-		this.info.Host = pgHost
+		builder.info.Host = pgHost
 	} else {
-		this.errs = append(this.errs, ErrPostgresqlConfigNoHost)
+		builder.errs = append(builder.errs, ErrPostgresqlConfigNoHost)
 	}
 	pgPort := os.Getenv("PG_PORT")
 	if pgPort != "" {
 		pgPortInt, err := strconv.Atoi(pgPort)
 		if err != nil {
-			this.errs = append(this.errs, err)
+			builder.errs = append(builder.errs, err)
 		}
-		this.info.Port = pgPortInt
+		builder.info.Port = pgPortInt
 	} else {
-		this.errs = append(this.errs, ErrPostgresqlConfigNoPort)
+		builder.errs = append(builder.errs, ErrPostgresqlConfigNoPort)
 	}
-	return this
+	return builder
 }
 
-func (this *PostgresConnctionInfoBuilder) WithUserAndPass() *PostgresConnctionInfoBuilder {
+func (builder *PostgresConnctionInfoBuilder) WithUserAndPass() *PostgresConnctionInfoBuilder {
 	pgUser := os.Getenv("PG_USER")
 	if pgUser != "" {
-		this.info.User = pgUser
+		builder.info.User = pgUser
 	} else {
-		this.errs = append(this.errs, ErrPostgresqlConfigNoUser)
+		builder.errs = append(builder.errs, ErrPostgresqlConfigNoUser)
 	}
 	pgPass := os.Getenv("PG_PASS")
 	if pgPass != "" {
-		this.info.Pass = pgPass
+		builder.info.Pass = pgPass
 	} else {
-		this.errs = append(this.errs, ErrPostgresqlConfigNoPassword)
+		builder.errs = append(builder.errs, ErrPostgresqlConfigNoPassword)
 	}
-	return this
+	return builder
 }
 
-func (this *PostgresConnctionInfoBuilder) WithDBName() *PostgresConnctionInfoBuilder {
+func (builder *PostgresConnctionInfoBuilder) WithDBName() *PostgresConnctionInfoBuilder {
 	pgDBName := os.Getenv("PG_DBNAME")
 	if pgDBName != "" {
-		this.info.DBname = pgDBName
+		builder.info.DBname = pgDBName
 	} else {
-		this.errs = append(this.errs, ErrPostgresqlConfigNoDBName)
+		builder.errs = append(builder.errs, ErrPostgresqlConfigNoDBName)
 	}
-	return this
+	return builder
 }
 
-func (this *PostgresConnctionInfoBuilder) Build() (PostgresConnctionInfo, error) {
-	if len(this.errs) > 0 {
-		return PostgresConnctionInfo{}, this.errs[0]
+func (builder *PostgresConnctionInfoBuilder) Build() (PostgresConnctionInfo, error) {
+	if len(builder.errs) > 0 {
+		return PostgresConnctionInfo{}, builder.errs[0]
 	}
-	return this.info, nil
+	return builder.info, nil
 }
 
 func NewPostgresqlRepository() (*sqlx.DB, error) {
